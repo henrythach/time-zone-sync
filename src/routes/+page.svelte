@@ -1,2 +1,10 @@
-<h1>Welcome to SvelteKit</h1>
-<p>Visit <a href="https://kit.svelte.dev">kit.svelte.dev</a> to read the documentation</p>
+<script lang="ts">
+	import TimeZoneDropdown from '$lib/TimeZoneDropdown.svelte';
+	import TimeDisplay from '$lib/TimeDisplay.svelte';
+	import { people } from '$lib/stores';
+</script>
+
+<TimeZoneDropdown />
+{#each $people as person}
+	<TimeDisplay {...person} />
+{/each}
