@@ -1,30 +1,69 @@
 import { writable } from 'svelte/store';
 import { browser } from '$app/environment';
 
-export type PersonType = { name: string; tz: string };
 const LOCAL_STORAGE_KEY = 'people';
-const DEFAULT_VALUE = [
-	{ name: 'Henry', tz: 'America/New_York' },
-	{ name: 'Tim Cook', tz: 'US/Pacific' }
-];
+const QUERY_PARAM_KEY = 'people';
+const DEFAULT_VALUE: PersonType[] = [];
+
+type PersonType = { name: string; tz: string };
+
+function serializeToURL(array: PersonType[]) {
+  return array
+    .map((person) => `${encodeURIComponent(person.name)}|${encodeURIComponent(person.tz)}`)
+    .join(';');
+}
+
+function deserializeFromURL(serializedArray: string): PersonType[] {
+  const items = serializedArray.split(';');
+  return items.map((item) => {
+    const [name, tz] = item.split('|').map(decodeURIComponent);
+    return { name, tz };
+  });
+}
 
 function createPeopleStore() {
-	const storedValue = browser ? localStorage.getItem(LOCAL_STORAGE_KEY) : null;
-	const initialValue = storedValue === null ? DEFAULT_VALUE : JSON.parse(storedValue);
+  let initialValue = null;
 
-	const { subscribe, set, update } = writable<PersonType[]>(initialValue);
+  if (browser) {
+    // Try to load from the query param
+    const urlParams = new URLSearchParams(window.location.search);
+    const peopleQueryString = urlParams.get(QUERY_PARAM_KEY);
+    initialValue = peopleQueryString ? deserializeFromURL(peopleQueryString) : null;
 
-	if (browser) {
-		subscribe(($value) => {
-			localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify($value));
-		});
-	}
+    // If it doesn't exist, then try to load from localStorage
+    if (!initialValue) {
+      const storedValue = localStorage.getItem(LOCAL_STORAGE_KEY);
+      initialValue = storedValue ? deserializeFromURL(storedValue) : null;
+    }
+  }
 
-	return {
-		subscribe,
-		addPerson: (name: string, tz: string) => update((people) => [...people, { name, tz }]),
-		clearAll: () => set([])
-	};
+  // Otherwise just use the default starter value
+  if (!initialValue) {
+    initialValue = DEFAULT_VALUE;
+  }
+
+  const { subscribe, set, update } = writable<PersonType[]>(initialValue);
+
+  if (browser) {
+    subscribe(($value) => {
+      // Serialize the array
+      const serializedValue = serializeToURL($value);
+
+      // Save it to localStorage
+      localStorage.setItem(LOCAL_STORAGE_KEY, serializedValue);
+
+      // Update the URL's 'people' query parameter
+      const currentUrl = new URL(window.location.href);
+      currentUrl.searchParams.set('people', serializedValue);
+      window.history.replaceState({}, '', currentUrl);
+    });
+  }
+
+  return {
+    subscribe,
+    addPerson: (name: string, tz: string) => update((people) => [...people, { name, tz }]),
+    clearAll: () => set([])
+  };
 }
 
 export const people = createPeopleStore();
