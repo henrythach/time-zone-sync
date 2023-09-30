@@ -62,7 +62,8 @@ function createPeopleStore() {
   return {
     subscribe,
     addPerson: (name: string, tz: string) => update((people) => [...people, { name, tz }]),
-    clearAll: () => set([])
+    clearAll: () => set([]),
+    deleteIndex: (index: number) => update((people) => people.filter((_, i) => i !== index))
   };
 }
 
