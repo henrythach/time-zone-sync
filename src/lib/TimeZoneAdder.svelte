@@ -20,25 +20,28 @@
   });
 </script>
 
-<div class="w-full text-center mt-8">
-  <input
-    type="text"
-    placeholder="Name"
-    bind:value={personName}
-    class="input input-bordered w-full max-w-xs mb-2"
-  />
+<div class="w-full text-center">
+  <form>
+    <input
+      type="text"
+      name="Name"
+      placeholder="Name"
+      bind:value={personName}
+      class="input input-bordered w-full max-w-xs mb-2"
+    />
 
-  <select bind:value={selectedTimeZone} class="select select-bordered w-full max-w-xs mb-2">
-    {#each timeZones as zone}
-      <option value={zone}>{zone}</option>
-    {/each}
-  </select>
+    <select bind:value={selectedTimeZone} class="select select-bordered w-full max-w-xs mb-2">
+      {#each timeZones as zone}
+        <option value={zone}>{zone}</option>
+      {/each}
+    </select>
 
-  <div class="block lg:inline">
-    <button
-      disabled={!personName}
-      on:click={addPerson}
-      class="btn btn-primary max-w-xs md:max-w-none w-full md:w-fit mb-2">Add</button
-    >
-  </div>
+    <div class="block lg:inline">
+      <button
+        disabled={!personName}
+        on:click={addPerson}
+        class="btn btn-primary max-w-xs md:max-w-none w-full md:w-fit mb-2">Add</button
+      >
+    </div>
+  </form>
 </div>
