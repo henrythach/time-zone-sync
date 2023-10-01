@@ -1,14 +1,15 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import moment from 'moment-timezone';
-  import { people } from './stores';
+
+  export let onAdd: (name: string, tz: string) => void;
 
   let personName = '';
   let selectedTimeZone = moment.tz.guess();
   let timeZones: string[] = [];
 
   function addPerson() {
-    people.addPerson(personName, selectedTimeZone);
+    onAdd(personName, selectedTimeZone);
 
     // reset the form
     personName = '';

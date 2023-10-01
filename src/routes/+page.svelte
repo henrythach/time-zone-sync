@@ -3,12 +3,18 @@
   import TimeDisplay from '$lib/TimeDisplay.svelte';
   import { people } from '$lib/stores';
   import { onMount } from 'svelte';
+  import { scale } from 'svelte/transition';
+  import { flip } from 'svelte/animate';
   import moment from 'moment-timezone';
 
   let currentTime = moment();
 
   function updateTime() {
     currentTime = moment();
+  }
+
+  function addPerson(name: string, tz: string) {
+    people.addPerson(name, tz);
   }
 
   function deletePerson(index: number) {
@@ -22,21 +28,21 @@
   });
 </script>
 
-<div class="container mx-auto px-4 pt-4">
-  <TimeZoneDropdown />
+<div class="container mx-auto px-4 py-4">
+  <TimeZoneDropdown onAdd={addPerson} />
 
-  {#if $people.length}
-    <div class="divider mx-4" />
-  {/if}
+  <div class="divider mx-4" />
 
   <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-    {#each $people as person, index}
-      <TimeDisplay
-        name={person.name}
-        tz={person.tz}
-        time={currentTime}
-        onDelete={() => deletePerson(index)}
-      />
+    {#each $people as person, index (person)}
+      <div in:scale={{ duration: 200 }} animate:flip={{ duration: 200 }}>
+        <TimeDisplay
+          name={person.name}
+          tz={person.tz}
+          time={currentTime}
+          onDelete={() => deletePerson(index)}
+        />
+      </div>
     {/each}
   </div>
 </div>
