@@ -28,10 +28,10 @@
   });
 </script>
 
-<div class="container mx-auto px-4 py-4">
+<div class="container mx-auto px-4 py-8">
   <TimeZoneDropdown onAdd={addPerson} />
 
-  <div class="divider mx-4" />
+  <div class="divider" />
 
   <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
     {#each $people as person, index (person)}
