@@ -21,10 +21,9 @@
 </script>
 
 <div class="w-full text-center">
-  <form>
+  <form on:submit|preventDefault={addPerson}>
     <input
       type="text"
-      name="Name"
       placeholder="Name"
       bind:value={personName}
       class="input input-bordered w-full max-w-xs mb-2"
@@ -39,9 +38,11 @@
     <div class="block lg:inline">
       <button
         disabled={!personName}
-        on:click={addPerson}
-        class="btn btn-primary max-w-xs md:max-w-none w-full md:w-fit mb-2">Add</button
+        on:submit={addPerson}
+        class="btn btn-primary max-w-xs md:max-w-none w-full md:w-fit mb-2"
       >
+        Add
+      </button>
     </div>
   </form>
 </div>
