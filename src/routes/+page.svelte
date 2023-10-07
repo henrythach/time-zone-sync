@@ -7,7 +7,7 @@
   import { flip } from 'svelte/animate';
   import moment from 'moment-timezone';
 
-  let timerId: number | null = null;
+  let mouseDown = false;
   let isHovered = false;
   let currentTime = moment();
 
@@ -20,6 +20,8 @@
   }
 
   function handleMouseMove(event: MouseEvent, tz: string) {
+    if (!mouseDown) return;
+
     const rect = event.target?.getBoundingClientRect();
     const cardWidth = rect.width;
     const x: number = event.clientX - rect.left;
@@ -44,31 +46,23 @@
     currentTime = hoveredLocalTime.clone();
   }
 
-  function startInterval() {
-    if (timerId !== null) return; // Already running
-    timerId = setInterval(() => {
-      if (!isHovered) {
-        updateTime();
-      }
-    }, 1000);
+  function handleMouseDown(event: MouseEvent, tz: string) {
+    mouseDown = true;
+    handleMouseMove(event, tz);
   }
 
-  function stopInterval() {
-    if (timerId !== null) {
-      clearInterval(timerId);
-      timerId = null;
-    }
+  function handleMouseUp() {
+    mouseDown = false;
+    updateTime();
   }
 
   function handleMouseOver() {
     isHovered = true;
-    stopInterval();
   }
 
   function handleMouseOut() {
     isHovered = false;
     updateTime();
-    startInterval();
   }
 
   function updateTime() {
@@ -76,7 +70,12 @@
   }
 
   onMount(() => {
-    startInterval();
+    const interval = setInterval(() => {
+      if (!isHovered || !mouseDown) {
+        updateTime();
+      }
+    }, 1000);
+    return () => clearInterval(interval);
   });
 </script>
 
@@ -92,12 +91,15 @@
   <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
     {#each $people as person, index (person)}
       <div
+        class="select-none"
         in:scale={{ duration: 200 }}
         animate:flip={{ duration: 200 }}
         on:mouseover={handleMouseOver}
         on:focus={handleMouseOver}
         on:mouseout={handleMouseOut}
         on:blur={handleMouseOut}
+        on:mousedown={(e) => handleMouseDown(e, person.tz)}
+        on:mouseup={handleMouseUp}
         on:mousemove={(e) => handleMouseMove(e, person.tz)}
         role="button"
         tabindex={0}
