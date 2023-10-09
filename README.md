@@ -26,7 +26,7 @@ These instructions will get you a copy of the project up and running on your loc
 1. **Clone the repository:**
 
    ```
-   git clone https://github.com/your-username/time-zone-sync.git
+   git clone https://github.com/henrythach/time-zone-sync.git
    ```
 
 2. **Navigate to the project directory:**
